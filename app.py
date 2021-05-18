@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template, request
 app = Flask(__name__)
 
 @app.route('/')
@@ -21,12 +21,21 @@ def index():
 
 @app.route('/hello')
 def hello():
-    return 'hello'    
+    return render_template("main.html")  
 
 @app.route('/naver')
 def naver():
-    return '네이버'    
+    return render_template("naver.html")   
 
+@app.route('/search', methods=['GET', 'POST'])
+def search(): 
+    if request.method == 'GET':
+        return "데이터를 받아주는 페이지"
+    else:
+        # POST로 들어오는 데이터를 받아보자
+        search = request.form['fname']
+        print("전달된 값:" ,search)
+        return "당신이 검색한 키워드 (POST)<br>{}입니다.".format (search)
 
 
 if __name__ == '__main__':
