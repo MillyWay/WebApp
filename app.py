@@ -1,6 +1,8 @@
-from db import insert_data
-from flask import Flask, render_template, request
+import db
+from flask import Flask, render_template, request, session, redirect
 app = Flask(__name__)
+
+app.secret_key = b'aaa!111/'
 
 @app.route('/')
 def index():
@@ -18,7 +20,7 @@ def register():
         email = request.form['email']
         pwd = request.form['pwd']
         print("전달된값:", email, pwd)
-        insert_data(email,pwd)
+        db.insert_data(email,pwd)
         return '회원가입 데이터(POST)'
         
 
@@ -31,17 +33,26 @@ def login():
         email = request.form['email']
         pwd = request.form['pwd']
         print("전달된값:", email, pwd)
-        if email == 'a@a.com' and pwd == '1':
+        ret = db.get_data(email,pwd)
+        if ret != 'None':
+            session['email'] = email
             return "로그인 성공"
-      
         else:
-            return "아이디 패스워드 확인"
+            return "로그인 실패"
     
 
 
 @app.route('/naver')
 def naver():
-    return render_template("naver.html")
+    if 'email' in session:
+        return render_template("naver.html")
+    else:
+        return redirect('/login')
+
+@app.route('/logout')
+def logout():
+    session.pop('email', None)
+    return redirect('/')
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
